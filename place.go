@@ -1,5 +1,9 @@
 package DistributedArray
 
+import (
+	"fmt"
+)
+
 // Place representation from the APGAS model
 type Place struct {
 	id int64
@@ -17,4 +21,11 @@ type PlaceGroup struct {
 // NewPlaceGroup returns a DistributedArray.PlaceGroup
 func NewPlaceGroup() *PlaceGroup {
 	return &PlaceGroup{}
+}
+
+//
+func (s *PlaceGroup) Broadcast() {
+	for _, p := range s.places {
+		fmt.Print(p.Id())
+	}
 }

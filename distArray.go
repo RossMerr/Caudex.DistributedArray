@@ -10,8 +10,8 @@ type DistArray struct {
 }
 
 // NewDistArray returns a DistributedArray.DistArray
-func NewDistArray(pg *PlaceGroup) *DistArray {
-	return &DistArray{pg: pg}
+func NewDistArray(length int, pg *PlaceGroup) *DistArray {
+	return &DistArray{pg: pg, length: length}
 }
 
 func (s *DistArray) Set(i int, v interface{}) {
@@ -26,6 +26,13 @@ func (s *DistArray) At(i int) interface{} {
 	}
 
 	return nil
+}
+
+func (s *DistArray) Reduce(f ReducerFunc) {
+}
+
+func (s *DistArray) Map(f MapperFunc) {
+	s.pg.Broadcast()
 }
 
 // LocalIterator iterates through all local elements
