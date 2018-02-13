@@ -11,15 +11,17 @@ type DistArray struct {
 
 // NewDistArray returns a DistributedArray.DistArray
 func NewDistArray(length int, pg *PlaceGroup) *DistArray {
-	return &DistArray{pg: pg, length: length}
+	return &DistArray{pg: pg, length: length, internalArray: make([]interface{}, length)}
 }
 
+// Set the given index of the array with the element
 func (s *DistArray) Set(i int, v interface{}) {
 	if i < s.minLocalIndex || i > s.maxLocalIndex {
 		s.internalArray[i] = v
 	}
 }
 
+// At returns the element of this array from the given index
 func (s *DistArray) At(i int) interface{} {
 	if i < s.minLocalIndex || i > s.maxLocalIndex {
 		return s.internalArray[i]
@@ -28,11 +30,15 @@ func (s *DistArray) At(i int) interface{} {
 	return nil
 }
 
+// Reduce applies a function against each element in the array to reduce it to a single value
 func (s *DistArray) Reduce(f ReducerFunc) {
 }
 
+// Map method creates a new array from calling a function on every element in the array
 func (s *DistArray) Map(f MapperFunc) {
-	s.pg.Broadcast()
+	s.pg.Broadcast(func(p *Place) {
+		p.array.Map(f)
+	})
 }
 
 // LocalIterator iterates through all local elements
