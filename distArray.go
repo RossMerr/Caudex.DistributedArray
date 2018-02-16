@@ -9,6 +9,7 @@ type DistArray struct {
 	minLocalIndex int
 	maxLocalIndex int
 	internalArray []interface{}
+	index         []int
 	distribution  Distribution
 }
 
@@ -19,14 +20,14 @@ func NewDistArray(d Distribution) *DistArray {
 
 // Set the given index of the array with the element
 func (s *DistArray) Set(i int, v interface{}) {
-	if i < s.minLocalIndex || i > s.maxLocalIndex {
+	if i >= s.minLocalIndex && i < s.maxLocalIndex {
 		s.internalArray[i] = v
 	}
 }
 
 // At returns the element of this array from the given index
 func (s *DistArray) At(i int) interface{} {
-	if i < s.minLocalIndex || i > s.maxLocalIndex {
+	if i >= s.minLocalIndex && i < s.maxLocalIndex {
 		return s.internalArray[i]
 	}
 

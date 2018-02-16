@@ -7,7 +7,7 @@ import (
 // Distribution stratege for initializing the distributed array
 type Distribution interface {
 	Stratege()
-	Places() []*Place
+	Places() []Place
 }
 
 // DistributionStratege name of the distribution stratege
@@ -37,6 +37,6 @@ func (s *UniqueDistribution) Stratege() {
 
 }
 
-func (s *UniqueDistribution) Places() []*Place {
+func (s *UniqueDistribution) Places() []Place {
 	return s.pg.places
 }
