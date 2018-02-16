@@ -1,17 +1,20 @@
 package DistributedArray
 
+import (
+	"fmt"
+)
+
 // DistArray a 1 dimensional distributed array
 type DistArray struct {
-	pg            *PlaceGroup
-	length        int
 	minLocalIndex int
 	maxLocalIndex int
 	internalArray []interface{}
+	distribution  Distribution
 }
 
 // NewDistArray returns a DistributedArray.DistArray
-func NewDistArray(length int, pg *PlaceGroup) *DistArray {
-	return &DistArray{pg: pg, length: length, internalArray: make([]interface{}, length)}
+func NewDistArray(d Distribution) *DistArray {
+	return &DistArray{distribution: d, internalArray: make([]interface{}, 0)}
 }
 
 // Set the given index of the array with the element
@@ -36,14 +39,14 @@ func (s *DistArray) Reduce(f ReducerFunc) {
 
 // Map method creates a new array from calling a function on every element in the array
 func (s *DistArray) Map(f MapperFunc) {
-	s.pg.Broadcast(func(p *Place) {
-		p.array.Map(f)
-	})
+	for _, p := range s.distribution.Places() {
+		fmt.Printf("%+v", p.Id())
+	}
 }
 
 // LocalIterator iterates through all local elements
 func (s *DistArray) LocalIterator() Iterator {
-	i := &DistArrayIterator{
+	i := &distArrayIterator{
 		array: s,
 		last:  0,
 	}
@@ -52,28 +55,28 @@ func (s *DistArray) LocalIterator() Iterator {
 
 // GlobalIterator iterates through all global elements
 func (s *DistArray) GlobalIterator() Iterator {
-	i := &DistArrayIterator{
+	i := &distArrayIterator{
 		array: s,
 		last:  0,
 	}
 	return i
 }
 
-type DistArrayIterator struct {
+type distArrayIterator struct {
 	array *DistArray
 	last  int
 }
 
 // HasNext checks the iterator has any more values
-func (s *DistArrayIterator) HasNext() bool {
-	if s.last >= s.array.length {
+func (s *distArrayIterator) HasNext() bool {
+	if s.last >= len(s.array.internalArray) {
 		return false
 	}
 	return true
 }
 
 // Next moves the iterator and returns the next element
-func (s *DistArrayIterator) Next() interface{} {
+func (s *distArrayIterator) Next() interface{} {
 	value := s.array.internalArray[s.last]
 	s.last++
 	return value
